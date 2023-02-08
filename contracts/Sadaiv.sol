@@ -1,64 +1,96 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
-
 contract Sadaiv {
-  struct Build {
-    string developer;
-    string cid;
-    string branch;
-    string commitMessage;
-  }
+    struct Contributor {
+        uint256 builderId;
+        string builderName;
+        string builderAvatarUrl;
+    }
+    struct Build {
+        string branch;
+        string commitMessage;
+        string commitHash;
+    }
 
-  event VerifiedBuilder (
-    string email,
-    address walletAddress
-  );
+    struct Repository {
+        uint256 id;
+        string name;
+        string fullname;
+        string description;
+        uint256 ownerId;
+        uint256 size;
+        string default_branch;
+        string[] topics;
+        string language;
+    }
 
-  struct Repository {
-    string owner;
-    string name;
-  }
-
-  event NewBuildCreated (
-    Repository repository,
-    Build build
-  );
-
-  address owner;
-
-  constructor() {
-    owner = msg.sender;
-  }
-
-
-  // Indexes new build generated / backed up data on network.
-  function createBuild(string memory repositoryOwner, string memory repositoryName, string memory branchName, string memory developer, string memory commitMessage, string memory cid) public {
-    require(msg.sender == owner, "Only owner can push to create new builds.");
-    Repository memory repo = Repository(
-      repositoryOwner,
-      repositoryName
+    event NewBuildCreated(
+        Repository repository,
+        Build build,
+        Contributor contributor
     );
-    Build memory build = Build(
-      developer,
-      cid,
-      branchName,
-      commitMessage
-    );
-    emit NewBuildCreated(repo, build);
-  }
+    event VerifiedBuilder(uint256 githubId, address walletAddress);
 
-  // Verifies the builder from Github Authentication and sets the wallet address.
-  function verifyBuilder(string memory email, bytes32 _hashMessage, uint8 _v, bytes32 _r, bytes32 _s) public {
-    require(msg.sender == owner, "Only contract owner can verify the builder.");
+    address owner;
+    mapping(uint256 => address) builderMapping;
 
-    bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-    bytes32 prefixedHashMessage = keccak256(abi.encodePacked(prefix, _hashMessage));
+    constructor() {
+        owner = msg.sender;
+    }
 
-    address signer = ecrecover(prefixedHashMessage, _v, _r, _s);
+    // Indexes new build generated / backed up data on network.
+    function createBuild(
+        uint256 repositoryId,
+        string memory repositoryName,
+        string memory repositoryFullname,
+        string memory repositoryDescription,
+        uint256 repositoryOwner,
+        uint256 repositorySize,
+        string memory repositoryDefault_branch,
+        string[] memory repositoryTopics,
+        string memory repositoryLanguage,
+        string memory commitMessage,
+        string memory commitHash,
+        string memory commitBranch,
+        uint256 contributorId,
+        string memory contributorName,
+        string memory contributorAvatar_url
+    ) internal {
+        require(
+            msg.sender == owner,
+            "Only owner can push to create new builds."
+        );
+        Repository memory repo = Repository(
+            repositoryId,
+            repositoryName,
+            repositoryFullname,
+            repositoryDescription,
+            repositoryOwner,
+            repositorySize,
+            repositoryDefault_branch,
+            repositoryTopics,
+            repositoryLanguage
+        );
 
-    emit VerifiedBuilder(email, signer);
-  }
+        Build memory build = Build(commitBranch, commitMessage, commitHash);
 
+        Contributor memory contributor = Contributor(
+            contributorId,
+            contributorName,
+            contributorAvatar_url
+        );
+
+        emit NewBuildCreated(repo, build, contributor);
+    }
+
+    // Verifies the builder from Github Authentication and sets the wallet address.
+    function verifyBuilder(uint256 githubId) public {
+        if (builderMapping[githubId] == address(0)) {
+            return;
+        }
+
+        builderMapping[githubId] = msg.sender;
+        emit VerifiedBuilder(githubId, msg.sender);
+    }
 }
