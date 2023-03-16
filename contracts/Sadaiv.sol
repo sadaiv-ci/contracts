@@ -11,6 +11,7 @@ contract Sadaiv {
         string branch;
         string commitMessage;
         string commitHash;
+        string cid;
     }
 
     struct Repository {
@@ -39,6 +40,11 @@ contract Sadaiv {
         owner = msg.sender;
     }
 
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not an owner");
+        _;
+    }
+
     // Indexes new build generated / backed up data on network.
     function createBuild(
         uint256 repositoryId,
@@ -55,12 +61,9 @@ contract Sadaiv {
         string memory commitBranch,
         uint256 contributorId,
         string memory contributorName,
-        string memory contributorAvatar_url
-    ) internal {
-        require(
-            msg.sender == owner,
-            "Only owner can push to create new builds."
-        );
+        string memory contributorAvatar_url,
+        string memory cid
+    ) internal onlyOwner {
         Repository memory repo = Repository(
             repositoryId,
             repositoryName,
@@ -73,7 +76,12 @@ contract Sadaiv {
             repositoryLanguage
         );
 
-        Build memory build = Build(commitBranch, commitMessage, commitHash);
+        Build memory build = Build(
+            commitBranch,
+            commitMessage,
+            commitHash,
+            cid
+        );
 
         Contributor memory contributor = Contributor(
             contributorId,
@@ -92,5 +100,9 @@ contract Sadaiv {
 
         builderMapping[githubId] = msg.sender;
         emit VerifiedBuilder(githubId, msg.sender);
+    }
+
+    function delegateOwnership(address newOwner) public onlyOwner {
+        owner = newOwner;
     }
 }
