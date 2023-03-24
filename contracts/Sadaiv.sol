@@ -63,7 +63,7 @@ contract Sadaiv {
         string memory contributorName,
         string memory contributorAvatar_url,
         string memory cid
-    ) internal onlyOwner {
+    ) public onlyOwner {
         Repository memory repo = Repository(
             repositoryId,
             repositoryName,
