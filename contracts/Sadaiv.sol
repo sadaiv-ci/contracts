@@ -33,8 +33,8 @@ contract Sadaiv {
     );
     event VerifiedBuilder(uint256 githubId, address walletAddress);
 
-    address owner;
-    mapping(uint256 => address) builderMapping;
+    address private owner;
+    mapping(uint256 => address) public builderMapping;
 
     constructor() {
         owner = msg.sender;
@@ -45,50 +45,10 @@ contract Sadaiv {
         _;
     }
 
-    // Indexes new build generated / backed up data on network.
     function createBuild(
-        uint256 repositoryId,
-        string memory repositoryName,
-        string memory repositoryFullname,
-        string memory repositoryDescription,
-        uint256 repositoryOwner,
-        uint256 repositorySize,
-        string memory repositoryDefault_branch,
-        string[] memory repositoryTopics,
-        string memory repositoryLanguage,
-        string memory commitMessage,
-        string memory commitHash,
-        string memory commitBranch,
-        uint256 contributorId,
-        string memory contributorName,
-        string memory contributorAvatar_url,
-        string memory cid
+        Repository memory repo, Build memory build, Contributor memory contributor
     ) public onlyOwner {
-        Repository memory repo = Repository(
-            repositoryId,
-            repositoryName,
-            repositoryFullname,
-            repositoryDescription,
-            repositoryOwner,
-            repositorySize,
-            repositoryDefault_branch,
-            repositoryTopics,
-            repositoryLanguage
-        );
-
-        Build memory build = Build(
-            commitBranch,
-            commitMessage,
-            commitHash,
-            cid
-        );
-
-        Contributor memory contributor = Contributor(
-            contributorId,
-            contributorName,
-            contributorAvatar_url
-        );
-
+        
         emit NewBuildCreated(repo, build, contributor);
     }
 
