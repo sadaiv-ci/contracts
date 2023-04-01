@@ -45,6 +45,7 @@ contract Sadaiv {
         _;
     }
 
+    //create a build with the metadata for a particular backup
     function createBuild(
         Repository memory repo, Build memory build, Contributor memory contributor
     ) public onlyOwner {
@@ -62,6 +63,7 @@ contract Sadaiv {
         emit VerifiedBuilder(githubId, msg.sender);
     }
 
+    //transfer ownership of contract to a different address
     function delegateOwnership(address newOwner) public onlyOwner {
         owner = newOwner;
     }
