@@ -1,64 +1,57 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
-
 contract Sadaiv {
-  struct Build {
-    string developer;
-    string cid;
-    string branch;
-    string commitMessage;
-  }
+    struct Contributor {
+        uint256 builderId;
+        string builderName;
+        string builderAvatarUrl;
+    }
+    struct Build {
+        string branch;
+        string commitMessage;
+        string commitHash;
+        string cid;
+    }
 
-  event VerifiedBuilder (
-    string email,
-    address walletAddress
-  );
+    struct Repository {
+        uint256 id;
+        string name;
+        string fullname;
+        string description;
+        uint256 ownerId;
+        uint256 size;
+        string default_branch;
+        string[] topics;
+        string language;
+    }
 
-  struct Repository {
-    string owner;
-    string name;
-  }
-
-  event NewBuildCreated (
-    Repository repository,
-    Build build
-  );
-
-  address owner;
-
-  constructor() {
-    owner = msg.sender;
-  }
-
-
-  // Indexes new build generated / backed up data on network.
-  function createBuild(string memory repositoryOwner, string memory repositoryName, string memory branchName, string memory developer, string memory commitMessage, string memory cid) public {
-    require(msg.sender == owner, "Only owner can push to create new builds.");
-    Repository memory repo = Repository(
-      repositoryOwner,
-      repositoryName
+    event NewBuildCreated(
+        Repository repository,
+        Build build,
+        Contributor contributor
     );
-    Build memory build = Build(
-      developer,
-      cid,
-      branchName,
-      commitMessage
-    );
-    emit NewBuildCreated(repo, build);
-  }
 
-  // Verifies the builder from Github Authentication and sets the wallet address.
-  function verifyBuilder(string memory email, bytes32 _hashMessage, uint8 _v, bytes32 _r, bytes32 _s) public {
-    require(msg.sender == owner, "Only contract owner can verify the builder.");
+    address private owner;
 
-    bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-    bytes32 prefixedHashMessage = keccak256(abi.encodePacked(prefix, _hashMessage));
+    constructor() {
+        owner = msg.sender;
+    }
 
-    address signer = ecrecover(prefixedHashMessage, _v, _r, _s);
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not an owner");
+        _;
+    }
 
-    emit VerifiedBuilder(email, signer);
-  }
+    //create a build with the metadata for a particular backup.
+    function createBuild(
+        Repository memory repo, Build memory build, Contributor memory contributor
+    ) public onlyOwner {
+        emit NewBuildCreated(repo, build, contributor);
+    }
 
+    //transfer ownership of contract to a different address.
+    function delegateOwnership(address newOwner) public onlyOwner {
+        owner = newOwner;
+    }
 }
