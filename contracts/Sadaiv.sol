@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract Sadaiv {
@@ -31,10 +31,8 @@ contract Sadaiv {
         Build build,
         Contributor contributor
     );
-    event VerifiedBuilder(uint256 githubId, address walletAddress);
 
     address private owner;
-    mapping(uint256 => address) public builderMapping;
 
     constructor() {
         owner = msg.sender;
@@ -45,25 +43,14 @@ contract Sadaiv {
         _;
     }
 
-    //create a build with the metadata for a particular backup
+    //create a build with the metadata for a particular backup.
     function createBuild(
         Repository memory repo, Build memory build, Contributor memory contributor
     ) public onlyOwner {
-        
         emit NewBuildCreated(repo, build, contributor);
     }
 
-    // Verifies the builder from Github Authentication and sets the wallet address.
-    function verifyBuilder(uint256 githubId) public {
-        if (builderMapping[githubId] == address(0)) {
-            return;
-        }
-
-        builderMapping[githubId] = msg.sender;
-        emit VerifiedBuilder(githubId, msg.sender);
-    }
-
-    //transfer ownership of contract to a different address
+    //transfer ownership of contract to a different address.
     function delegateOwnership(address newOwner) public onlyOwner {
         owner = newOwner;
     }
