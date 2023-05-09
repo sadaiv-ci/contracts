@@ -1,12 +1,11 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
+import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract Sadaiv {
-    struct Contributor {
-        uint256 builderId;
-        string builderName;
-        string builderAvatarUrl;
-    }
+contract Sadaiv{
+    using Counters for Counters.Counter;
+    Counters.Counter public sadaiv_id;
+
     struct Build {
         string branch;
         string commitMessage;
@@ -26,45 +25,55 @@ contract Sadaiv {
         string language;
     }
 
-    event NewBuildCreated(
-        Repository repository,
-        Build build,
-        Contributor contributor
-    );
-    event VerifiedBuilder(uint256 githubId, address walletAddress);
+    mapping(uint256=>mapping(uint256=>bool)) public sadaivIdToGithubId;
+    mapping(address=>uint256) public SCWAddressToSadaivId;
+    // mapping(uint256=>Repository) public userRepos;
+    mapping(uint256=>string) public contributorData;    //scw address to contributor data cid
 
-    address private owner;
-    mapping(uint256 => address) public builderMapping;
+    event newBuild(uint256 contributorGithubId, Repository Repository, Build build);
+    event newUser(uint256 githubId, uint256 sadaivId, address userAddress);
+    event newProfileChange(string cid);
+    event newProvider(uint256 sadaivId, uint256 provider);
 
-    constructor() {
-        owner = msg.sender;
+    function verifySignature(bytes32 message, bytes memory signature, address recoveredAddress) public pure returns (bool) {
+        bytes32 hash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", message));
+        address signer = ecrecover(hash, uint8(signature[0]), bytes32ToBytes(signature, 1), bytes32ToBytes(signature, 33));
+        address calculatedAddress = address(uint160(uint256(keccak256(abi.encodePacked(signer)))) & 0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF);
+        return calculatedAddress == recoveredAddress;
     }
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not an owner");
-        _;
-    }
-
-    //create a build with the metadata for a particular backup
-    function createBuild(
-        Repository memory repo, Build memory build, Contributor memory contributor
-    ) public onlyOwner {
-        
-        emit NewBuildCreated(repo, build, contributor);
-    }
-
-    // Verifies the builder from Github Authentication and sets the wallet address.
-    function verifyBuilder(uint256 githubId) public {
-        if (builderMapping[githubId] == address(0)) {
-            return;
+    function bytes32ToBytes(bytes memory b, uint256 offset) private pure returns (bytes32) {
+        bytes32 out;
+        for (uint256 i = 0; i < 32; i++) {
+            out |= bytes32(b[offset + i] & 0xFF) >> (i * 8);
         }
-
-        builderMapping[githubId] = msg.sender;
-        emit VerifiedBuilder(githubId, msg.sender);
+        return out;
     }
 
-    //transfer ownership of contract to a different address
-    function delegateOwnership(address newOwner) public onlyOwner {
-        owner = newOwner;
+    function createNewBuild(uint256 contributorGithubId, Repository memory _repo, Build memory _build) public {
+        emit newBuild(contributorGithubId, _repo, _build);
+    }
+
+    function registerUser(bytes32 message, bytes memory signature, address recoveredAddress, uint256 _githubId) public {
+        require(verifySignature(message, signature, recoveredAddress),"Address not authorized!");
+        sadaiv_id.increment();
+        sadaivIdToGithubId[sadaiv_id.current()][_githubId] = true;
+        SCWAddressToSadaivId[recoveredAddress] = sadaiv_id.current();
+        emit newUser(_githubId, sadaiv_id.current(), recoveredAddress);
+    }
+
+    function addProviders(bytes32 message, bytes memory signature, address recoveredAddress, uint256 _newId) public {
+        require(verifySignature(message, signature, recoveredAddress),"Address not authorized!");
+        uint256 _sadaivId = SCWAddressToSadaivId[recoveredAddress];
+        require(!sadaivIdToGithubId[_sadaivId][_newId], "Provider already registered.");
+        sadaivIdToGithubId[_sadaivId][_newId] = true;
+        emit newProvider(_sadaivId, _newId);
+    }
+
+    function changeContributorData(bytes32 message, bytes memory signature, address recoveredAddress, string memory cid) public{
+        require(verifySignature(message, signature, recoveredAddress),"Address not authorized!");
+        uint256 id = SCWAddressToSadaivId[recoveredAddress];
+        contributorData[id] = cid;
+        emit newProfileChange(cid);
     }
 }
