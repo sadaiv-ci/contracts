@@ -3,7 +3,11 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 interface VerifySignatureInterface {
-    function verifySignature(address _signer,string memory _message, bytes memory signature) external returns (bool);
+  function verifySignature(
+    address _signer,
+    string memory _message,
+    bytes memory signature
+  ) external returns (bool);
 }
 
 contract SadaivId {
@@ -11,8 +15,8 @@ contract SadaivId {
   using Counters for Counters.Counter;
   Counters.Counter public sadaivId;
 
-  constructor(address verifyContractAddress){
-        verifySignatureContract = VerifySignatureInterface(verifyContractAddress);
+  constructor(address verifyContractAddress) {
+    verifySignatureContract = VerifySignatureInterface(verifyContractAddress);
   }
 
   mapping(uint256 => mapping(uint256 => bool)) public sadaivIdToGithubId;
@@ -33,10 +37,8 @@ contract SadaivId {
       verifySignatureContract.verifySignature(signer, message, signature),
       "Address not authorized!"
     );
-    require(
-      SCWAddressToSadaivId[signer] != 0,
-      "Address already registered."
-    );
+
+    require(SCWAddressToSadaivId[signer] == 0, "Address already registered.");
     sadaivId.increment();
     sadaivIdToGithubId[sadaivId.current()][githubId] = true;
     SCWAddressToSadaivId[signer] = sadaivId.current();
@@ -50,7 +52,7 @@ contract SadaivId {
     uint256 _newId
   ) public {
     require(
-      verifySignatureContract.verifySignature( signer,message, signature),
+      verifySignatureContract.verifySignature(signer, message, signature),
       "Address not authorized!"
     );
     uint256 _sadaivId = SCWAddressToSadaivId[signer];

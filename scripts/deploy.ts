@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 
 async function main() {
   // get contract and deploy to blockchain
-  const Sadaiv = await ethers.getContractFactory("Sadaiv");
+  const Sadaiv = await ethers.getContractFactory("SadaivBackup");
   const sadaiv = await Sadaiv.deploy();
 
   await sadaiv.deployed();

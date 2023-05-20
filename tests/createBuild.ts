@@ -1,5 +1,6 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
+require('dotenv').config();
 
 let sadaivBackupContract;
 
@@ -38,6 +39,7 @@ it('should create a new build', async () => {
     .to.emit(sadaivBackupContract, 'NewBuild')
     .withArgs(repository, build, repoId, commitHash);
 
-  expect(await sadaivBackupContract.userRepos(repoId)).to.deep.equal(repository);
-  expect(await sadaivBackupContract.repoBuilds(repoId, commitHash)).to.deep.equal(build);
+    expect(await sadaivBackupContract.repoBuilds(repoId, commitHash)).to.deep.equal(build);
+    console.log("done")
+    expect(await sadaivBackupContract.userRepos(repoId)).to.deep.equal(repository);
 });
