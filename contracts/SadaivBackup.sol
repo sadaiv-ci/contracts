@@ -2,6 +2,17 @@
 pragma solidity ^0.8.0;
 
 contract SadaivBackup {
+  mapping(address => bool) public owners;
+
+  constructor() {
+    owners[msg.sender] = true;
+  }
+
+  modifier onlyOwner() {
+    require(owners[msg.sender], "Not authorized!");
+    _;
+  }
+
   struct Build {
     string branch;
     string commitMessage;
@@ -38,7 +49,7 @@ contract SadaivBackup {
     Build memory _build,
     uint256 _repoId,
     string memory _commitHash
-  ) public {
+  ) public onlyOwner {
     userRepos[_repoId] = _repo;
     repoBuilds[_repoId][_commitHash] = _build;
     emit NewBuild(_repo, _build, _repoId, _commitHash);
