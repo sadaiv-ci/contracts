@@ -1,13 +1,23 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  // get contract and deploy to blockchain
-  const Sadaiv = await ethers.getContractFactory("SadaivBackup");
-  const sadaiv = await Sadaiv.deploy();
+  const verify = await ethers.getContractFactory("VerifySignature");
+  const verifierContract = await verify.deploy();
+  await verifierContract.deployed();
+  console.log(
+    "Deployed Sadaiv verifier contract to:",
+    verifierContract.address
+  );
 
-  await sadaiv.deployed();
+  const sadaivId = await ethers.getContractFactory("SadaivId");
+  const sadaivIdContract = await sadaivId.deploy(verifierContract.address);
+  await sadaivIdContract.deployed();
+  console.log("Deployed Sadaiv Id contract to:", sadaivIdContract.address);
 
-  console.log("Deployed Sadaiv contract to:", sadaiv.address);
+  const backup = await ethers.getContractFactory("SadaivBackup");
+  const backupContract = await backup.deploy();
+  await backupContract.deployed();
+  console.log("Deployed Sadaiv Backup contract to:", backupContract.address);
 }
 
 main().catch((error) => {

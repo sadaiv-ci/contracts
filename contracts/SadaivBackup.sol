@@ -13,8 +13,12 @@ contract SadaivBackup {
     _;
   }
 
-  function makeOwner(address _owner) public onlyOwner {
-    owners[_owner] = true;
+  function makeOwner(address _address) public onlyOwner {
+    owners[_address] = true;
+  }
+
+  function checkIfOwner(address _address) public view returns (bool) {
+    return owners[_address];
   }
 
   struct Build {
