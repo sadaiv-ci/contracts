@@ -27,6 +27,7 @@ contract SadaivId {
   event NewProfileChange(string cid);
   event NewProvider(uint256 sadaivId, uint256 provider);
 
+  //register new user(with scw address) if not already registered
   function registerUser(
     string memory message,
     bytes memory signature,
@@ -45,6 +46,7 @@ contract SadaivId {
     emit NewUser(githubId, sadaivId.current(), signer);
   }
 
+  //function to add new github account ids for a single sadaiv userid
   function addProviders(
     string memory message,
     bytes memory signature,
@@ -64,6 +66,7 @@ contract SadaivId {
     emit NewProvider(_sadaivId, _newId);
   }
 
+  //change the contributor data cid
   function changeContributorData(
     string memory message,
     bytes memory signature,
