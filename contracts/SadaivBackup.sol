@@ -13,6 +13,10 @@ contract SadaivBackup {
     _;
   }
 
+  function makeOwner(address _owner) public onlyOwner {
+    owners[_owner] = true;
+  }
+
   struct Build {
     string branch;
     string commitMessage;
