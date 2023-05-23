@@ -24,7 +24,8 @@ contract SadaivBackup {
   struct Build {
     string branch;
     string commitMessage;
-    // string commitHash;
+    string commitHash;
+    string timestamp;
     uint256 contributorGithubId;
     string backupCid;
     string changesCid; //future scope
@@ -38,12 +39,12 @@ contract SadaivBackup {
     uint256 ownerGithubId;
     uint256 size;
     string defaultBranch;
+    string timestamp;
     string[] topics;
-    string language;
   }
 
   mapping(uint256 => Repository) public userRepos; //repoId => repo
-  mapping(uint256 => mapping(string => Build)) public repoBuilds; //repoId => commitHash => build
+  mapping(uint256 => mapping(bytes32 => Build)) public repoBuilds; //repoId => barnch+commitHash => build
 
   event NewBuild(
     Repository repository,
@@ -59,7 +60,14 @@ contract SadaivBackup {
     string memory _commitHash
   ) public onlyOwner {
     userRepos[_repoId] = _repo;
-    repoBuilds[_repoId][_commitHash] = _build;
+
+    repoBuilds[_repoId][
+      keccak256(
+        abi.encodePacked(
+          string(abi.encodePacked(_build.branch, _build.commitHash))
+        )
+      )
+    ] = _build;
     emit NewBuild(_repo, _build, _repoId, _commitHash);
   }
 }

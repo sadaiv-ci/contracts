@@ -21,10 +21,10 @@ contract SadaivId {
 
   mapping(uint256 => mapping(uint256 => bool)) public sadaivIdToGithubId;
   mapping(address => uint256) public SCWAddressToSadaivId;
-  mapping(uint256 => string) public contributorData; //scw address to contributor data cid
+  mapping(uint256 => string) public contributorData; //sadaiv id to contributor data cid
 
-  event NewUser(uint256 githubId, uint256 sadaivId, address userAddress);
-  event NewProfileChange(string cid);
+  event NewUser(uint256 githubId, uint256 sadaivId, address scwAddress);
+  event NewProfileChange(uint256 sadaivId, string cid);
   event NewProvider(uint256 sadaivId, uint256 provider);
 
   //register new user(with scw address) if not already registered
@@ -79,6 +79,6 @@ contract SadaivId {
     );
     uint256 id = SCWAddressToSadaivId[signer];
     contributorData[id] = cid;
-    emit NewProfileChange(cid);
+    emit NewProfileChange(id, cid);
   }
 }
