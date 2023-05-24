@@ -70,6 +70,7 @@ contract SadaivId {
       verifySignatureContract.verifySignature(signer, message, signature),
       "Address not authorized!"
     );
+    require(SCWAddressToSadaivId[signer] != 0, "Address not registered.");
     uint256 _sadaivId = SCWAddressToSadaivId[signer];
     require(
       !sadaivIdToGithubId[_sadaivId][_newId],
@@ -90,6 +91,7 @@ contract SadaivId {
       verifySignatureContract.verifySignature(signer, message, signature),
       "Address not authorized!"
     );
+    require(SCWAddressToSadaivId[signer] != 0, "Address not registered.");
     uint256 _sadaivId = SCWAddressToSadaivId[signer];
     contributorData[_sadaivId] = cid;
     emit NewProfileChange(_sadaivId, cid);
