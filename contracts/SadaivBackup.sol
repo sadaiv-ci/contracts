@@ -48,20 +48,19 @@ contract SadaivBackup {
   mapping(uint256 => Repository) public userRepos; //repoId => repo
   mapping(uint256 => mapping(bytes32 => Build)) public repoBuilds; //repoId => hash(barnch+commitHash) => build
 
-  event NewBuild(Repository repository, Build build);
+  event NewBuild(Repository repository, Build build, bytes32 buildhash);
 
   function createNewBuild(
     Repository memory _repo,
     Build memory _build
   ) public onlyOwner {
     userRepos[_repo.id] = _repo;
-    repoBuilds[_repo.id][
-      keccak256(
-        abi.encodePacked(
-          string(abi.encodePacked(_build.branch, _build.commitHash))
-        )
+    bytes32 buildhash = keccak256(
+      abi.encodePacked(
+        string(abi.encodePacked(_build.branch, _build.commitHash))
       )
-    ] = _build;
-    emit NewBuild(_repo, _build);
+    );
+    repoBuilds[_repo.id][buildhash] = _build;
+    emit NewBuild(_repo, _build, buildhash);
   }
 }
