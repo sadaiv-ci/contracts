@@ -59,6 +59,10 @@ contract SadaivId {
     return sadaivId.current();
   }
 
+  function userExists(address scwAddress) public view returns (bool) {
+    return SCWAddressToSadaivId[scwAddress] != 0;
+  }
+
   //function to add github account ids for a sadaiv userid
   function addProviders(
     string memory message,

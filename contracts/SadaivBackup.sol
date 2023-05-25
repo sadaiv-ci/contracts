@@ -38,7 +38,7 @@ contract SadaivBackup {
     string description;
     uint256 ownerGithubId;
     uint256 size;
-    bool forked;
+    uint256 parentRepo;
     string defaultBranch;
     string timestamp;
     string[] topics;
