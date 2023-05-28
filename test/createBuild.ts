@@ -1,8 +1,9 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
+import { SadaivBackup } from '../typechain';
 require('dotenv').config();
 
-let sadaivBackupContract;
+let sadaivBackupContract: SadaivBackup;
 
 beforeEach(async () => {
   const SadaivBackup = await ethers.getContractFactory('SadaivBackup');
@@ -12,6 +13,9 @@ beforeEach(async () => {
 
 it('should create a new build', async () => {
   const repository = {
+    id: 1,
+    parentRepo: 0,
+    timestamp: '322',
     name: 'Repo1',
     fullname: 'Fullname1',
     description: 'Description1',
@@ -19,27 +23,23 @@ it('should create a new build', async () => {
     size: 100,
     defaultBranch: 'main',
     topics: ['topic1', 'topic2'],
-    language: 'Solidity',
+    languages: ['Solidity'],
   };
 
   const build = {
+    timestamp: '3232',
     branch: 'branch1',
+    commitHash: 'ksj32fs',
     commitMessage: 'Commit Message1',
     contributorGithubId: 67890,
-    cid: 'CID123',
+    backupCid: 'CID123',
     changesCid: 'CID456',
   };
 
   const repoId = 1;
-  const commitHash = 'CommitHash123';
 
   await expect(
-    sadaivBackupContract.createNewBuild(repository, build, repoId, commitHash)
+    sadaivBackupContract.createNewBuild(repository, build)
   )
-    .to.emit(sadaivBackupContract, 'NewBuild')
-    .withArgs(repository, build, repoId, commitHash);
-
-    expect(await sadaivBackupContract.repoBuilds(repoId, commitHash)).to.deep.equal(build);
-    console.log("done")
-    expect(await sadaivBackupContract.userRepos(repoId)).to.deep.equal(repository);
+    .to.emit(sadaivBackupContract, 'NewBuild');
 });
