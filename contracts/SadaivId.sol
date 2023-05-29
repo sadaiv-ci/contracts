@@ -36,9 +36,11 @@ contract SadaivId {
   function registerUser() public returns (uint256) {
     require(SCWAddressToSadaivId[msg.sender] == 0, "Address already registered.");
     sadaivId.increment();
-    SCWAddressToSadaivId[msg.sender] = sadaivId.current();
-    emit NewUser(sadaivId.current(), msg.sender);
-    return sadaivId.current();
+    uint256 currentId = sadaivId.current();
+    
+    SCWAddressToSadaivId[msg.sender] = currentId;
+    emit NewUser(currentId, msg.sender);
+    return currentId;
   }
 
   function userExists(address scwAddress) public view returns (bool) {
