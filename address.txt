@@ -1,2 +1,2 @@
-Deployed Sadaiv Id contract to: 0x37af0BE2e02A22fB58cF1f3384a03D2dB642f34a
+Deployed Sadaiv Id contract to: 0x600Ab5D16c937039CFA4818945BD37974449E3c5
 Deployed Sadaiv Backup contract to: 0xBFdD75A2098A177AD44A15480Ec20d650d981884

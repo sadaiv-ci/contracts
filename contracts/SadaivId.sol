@@ -49,10 +49,11 @@ contract SadaivId {
 
   //function to add github account ids for a sadaiv userid
   function addProviders(
+    address scw,
     uint256 _newId
   ) public onlyOwner {
-    require(SCWAddressToSadaivId[msg.sender] != 0, "Address not registered.");
-    uint256 _sadaivId = SCWAddressToSadaivId[msg.sender];
+    require(SCWAddressToSadaivId[scw] != 0, "Address not registered.");
+    uint256 _sadaivId = SCWAddressToSadaivId[scw];
     require(
       !sadaivIdToGithubId[_sadaivId][_newId],
       "Provider already registered."
