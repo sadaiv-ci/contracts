@@ -1,33 +1,35 @@
 const hre = require("hardhat");
 
 async function main() {
-  const address = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+  const address = "0xed2947e0c9851EF1c5B25d80d953e458aaeA4f5A";
   const backupContractFactory = await hre.ethers.getContractFactory("SadaivBackup");
   const backupContract = await backupContractFactory.attach(address);
 
   const repository = {
-    name: 'Repo1',
-    fullname: 'Fullname1',
-    description: 'Description1',
-    ownerGithubId: 12345,
-    size: 100,
+    id:581591975,
+    name: 'ask-on-chain',
+    fullname: 'aditipolkam/ask-on-chain',
+    description: 'a platform to fearlessly ask questions to whomsoever you want by maintaining anonymity',
+    ownerGithubId: 60136767,
+    size: 254,
+    parentRepo:0,
     defaultBranch: 'main',
-    topics: ['topic1', 'topic2'],
-    language: 'Solidity',
+    timestamp: "1680783864",
+    topics: ["anonymity","blockchain","nextjs","question-answering","solidity"],
+    languages: ['Solidity', 'JavaScript', 'HTML', 'CSS'],
   };
 
   const build = {
-    branch: 'branch1',
-    commitMessage: 'Commit Message1',
-    contributorGithubId: 67890,
-    cid: 'CID123',
-    changesCid: 'CID456',
+    branch: 'main',
+    commitMessage: 'docs:📝 update readme',
+    commitHash: "8661f4cf0daa26437f26adfdc1b6a330f8cddcb6",
+    timestamp:"1680783864",
+    contributorGithubId: 60136767,
+    backupCid: 'QmbHafwh5DargwKUgpraA2HtskAKbRRqyviVxBhsd8JJY9',
+    changesCid: '',
   };
 
-  const repoId = 1;
-  const commitHash = 'CommitHash123';
-
-  let txn = await backupContract.createNewBuild(repository, build, repoId, commitHash);
+  let txn = await backupContract.createNewBuild(repository, build);
   await txn.wait();
   console.log("Backed up");
 }
