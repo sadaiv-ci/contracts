@@ -1,16 +1,8 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const verify = await ethers.getContractFactory("VerifySignature");
-  const verifierContract = await verify.deploy();
-  await verifierContract.deployed();
-  console.log(
-    "Deployed Sadaiv verifier contract to:",
-    verifierContract.address
-  );
-
   const sadaivId = await ethers.getContractFactory("SadaivId");
-  const sadaivIdContract = await sadaivId.deploy(verifierContract.address);
+  const sadaivIdContract = await sadaivId.deploy();
   await sadaivIdContract.deployed();
   console.log("Deployed Sadaiv Id contract to:", sadaivIdContract.address);
 

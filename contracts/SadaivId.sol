@@ -2,23 +2,13 @@
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-interface VerifySignatureInterface {
-  function verifySignature(
-    address _signer,
-    string memory _message,
-    bytes memory signature
-  ) external returns (bool);
-}
-
 contract SadaivId {
   mapping(address => bool) public owners;
-  VerifySignatureInterface public verifySignatureContract;
   using Counters for Counters.Counter;
   Counters.Counter public sadaivId;
 
-  constructor(address verifyContractAddress) {
+  constructor() {
     owners[msg.sender] = true;
-    verifySignatureContract = VerifySignatureInterface(verifyContractAddress);
   }
 
   modifier onlyOwner() {
@@ -43,20 +33,14 @@ contract SadaivId {
   event NewProvider(uint256 sadaivId, uint256 provider);
 
   //register new user(with scw address) if not already registered
-  function registerUser(
-    string memory message,
-    bytes memory signature,
-    address signer
-  ) public returns (uint256) {
-    require(
-      verifySignatureContract.verifySignature(signer, message, signature),
-      "Address not authorized!"
-    );
-    require(SCWAddressToSadaivId[signer] == 0, "Address already registered.");
+  function registerUser() public returns (uint256) {
+    require(SCWAddressToSadaivId[msg.sender] == 0, "Address already registered.");
     sadaivId.increment();
-    SCWAddressToSadaivId[signer] = sadaivId.current();
-    emit NewUser(sadaivId.current(), signer);
-    return sadaivId.current();
+    uint256 currentId = sadaivId.current();
+    
+    SCWAddressToSadaivId[msg.sender] = currentId;
+    emit NewUser(currentId, msg.sender);
+    return currentId;
   }
 
   function userExists(address scwAddress) public view returns (bool) {
@@ -65,17 +49,11 @@ contract SadaivId {
 
   //function to add github account ids for a sadaiv userid
   function addProviders(
-    string memory message,
-    bytes memory signature,
-    address signer,
+    address scw,
     uint256 _newId
   ) public onlyOwner {
-    require(
-      verifySignatureContract.verifySignature(signer, message, signature),
-      "Address not authorized!"
-    );
-    require(SCWAddressToSadaivId[signer] != 0, "Address not registered.");
-    uint256 _sadaivId = SCWAddressToSadaivId[signer];
+    require(SCWAddressToSadaivId[scw] != 0, "Address not registered.");
+    uint256 _sadaivId = SCWAddressToSadaivId[scw];
     require(
       !sadaivIdToGithubId[_sadaivId][_newId],
       "Provider already registered."
@@ -86,17 +64,10 @@ contract SadaivId {
 
   //change the contributor data cid
   function changeContributorData(
-    string memory message,
-    bytes memory signature,
-    address signer,
     string memory cid
   ) public {
-    require(
-      verifySignatureContract.verifySignature(signer, message, signature),
-      "Address not authorized!"
-    );
-    require(SCWAddressToSadaivId[signer] != 0, "Address not registered.");
-    uint256 _sadaivId = SCWAddressToSadaivId[signer];
+    require(SCWAddressToSadaivId[msg.sender] != 0, "Address not registered.");
+    uint256 _sadaivId = SCWAddressToSadaivId[msg.sender];
     contributorData[_sadaivId] = cid;
     emit NewProfileChange(_sadaivId, cid);
   }
